@@ -3,8 +3,8 @@
 [![api](https://img.shields.io/badge/API-17+-brightgreen.svg)](https://android-arsenal.com/api?level=17)
 [![Issue](https://img.shields.io/github/issues/chndietrich/clienthook.svg)](https://github.com/chndietrich/clienthook/issues)
 [![Star](https://img.shields.io/github/stars/chndietrich/clienthook.svg)](https://github.com/chndietrich/clienthook)
-master
-一个简洁而又优雅的Android原生注解自动注册框架，解放你的双手！还不赶紧点击[使用说明文档](https://github.com/chndietrich/clienthook/wiki)，体验一下吧！
+
+## 一个简洁而又优雅的Android原生注解自动注册框架，解放你的双手！还不赶紧点击[使用说明文档](https://github.com/chndietrich/clienthook/wiki)，体验一下吧！
 
 ----
 
