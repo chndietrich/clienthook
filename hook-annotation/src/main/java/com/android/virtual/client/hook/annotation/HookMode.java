@@ -1,4 +1,4 @@
-package com.android.virtual.client.annotation;
+package com.android.virtual.client.hook.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,11 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HookMethod {
-    String value() default "<init>";
+public @interface HookMode {
+
+    int AUTO = 0;
+    int INLINE = 1;
+    int REPLACE = 2;
+
+    int value() default AUTO;
 }

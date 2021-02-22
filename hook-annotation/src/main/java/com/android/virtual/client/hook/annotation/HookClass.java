@@ -1,4 +1,4 @@
-package com.android.virtual.client.annotation;
+package com.android.virtual.client.hook.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HookReflectClass {
-    String value();
+public @interface HookClass {
+    Class<?> value();
     /**
      * @return 所在的组
      */

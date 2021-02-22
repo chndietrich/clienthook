@@ -1,7 +1,7 @@
 package com.android.virtual.compiler;
 
-import com.android.virtual.client.annotation.HookClass;
-import com.android.virtual.client.annotation.HookReflectClass;
+import com.android.virtual.client.hook.annotation.HookClass;
+import com.android.virtual.client.hook.annotation.HookReflectClass;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
