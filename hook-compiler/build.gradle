@@ -11,3 +11,5 @@ dependencies {
 
     implementation project(':hook-annotation')
 }
+
+apply from: '../JitPackUpload.gradle'
