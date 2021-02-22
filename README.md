@@ -35,7 +35,6 @@ allprojects {
 ```
 dependencies {
   ...
-  //androidx项目
   annotationProcessor 'com.github.chndietrich.clienthook:hook-compiler:1.0.3'
   implementation 'com.github.chndietrich.clienthook:hook-annotation:1.0.3'
 }
