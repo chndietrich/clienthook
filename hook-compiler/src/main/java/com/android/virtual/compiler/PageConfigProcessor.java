@@ -1,7 +1,9 @@
 package com.android.virtual.compiler;
 
+import com.android.virtual.client.hook.annotation.AutoHookMethod;
 import com.android.virtual.client.hook.annotation.HookClass;
 import com.android.virtual.client.hook.annotation.HookReflectClass;
+import com.android.virtual.util.Consts;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -21,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +39,7 @@ import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -114,15 +118,82 @@ public class PageConfigProcessor extends AbstractProcessor {
         if (CollectionUtils.isNotEmpty(annotations)) {
             Set<? extends Element> hookClassElements = roundEnvironment.getElementsAnnotatedWith(HookClass.class);
             Set<? extends Element> hookReflectClassElements = roundEnvironment.getElementsAnnotatedWith(HookReflectClass.class);
+            Set<? extends Element> AutoHookMethodElements = roundEnvironment.getElementsAnnotatedWith(AutoHookMethod.class);
             try {
                 mLogger.info(">>> Found HookClass, start... <<<");
                 parseHookClass(hookClassElements, hookReflectClassElements);
+                parseAutoHookMethod(AutoHookMethodElements);
             } catch (Exception e) {
                 mLogger.error(e);
             }
             return true;
         }
         return false;
+    }
+
+    private void parseAutoHookMethod(Set<? extends Element> autoHookMethodElements) throws IOException{
+
+        Map<TypeElement, List<Element>> parentAndChild = new HashMap<>();
+        TypeElement ClassTypeElement;
+        TypeMirror MethodTypeMirror;
+        Name MethodName;
+        for (Element element : autoHookMethodElements) {
+
+            MethodName = element.getSimpleName();
+            if(MethodName == null)
+                continue;
+
+            MethodTypeMirror = element.asType();
+            if(MethodTypeMirror == null)
+                continue;
+
+            ClassTypeElement = (TypeElement) element.getEnclosingElement();
+            if(ClassTypeElement == null)
+                continue;
+
+            if (parentAndChild.containsKey(ClassTypeElement)) { // Has categries
+                parentAndChild.get(ClassTypeElement).add(element);
+            } else {
+                List<Element> childs = new ArrayList<>();
+                childs.add(element);
+                parentAndChild.put(ClassTypeElement, childs);
+            }
+        }
+        if (!MapUtils.isNotEmpty(parentAndChild))
+            return;
+
+        CodeBlock javaDoc = CodeBlock.builder()
+                .add("<p>这是AutoHookMethod自动生成的类，用以自动进行注册。</p>\n")
+                .add("<p><a href=\"mailto:2721624510@qq.com\">Contact me.</a></p>\n")
+                .add("\n")
+                .add("@author 德友 \n")
+                .add("@date ").add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).add("\n")
+                .build();
+
+        for (Map.Entry<TypeElement, List<Element>> entry : parentAndChild.entrySet()){
+
+            TypeElement parent = entry.getKey();  //封装字段的最里层类
+            List<Element> childs = entry.getValue();
+
+            //获得包名和文件名
+            String qualifiedName = parent.getQualifiedName().toString();
+            String packageName = qualifiedName.substring(0, qualifiedName.lastIndexOf("."));
+            String fileName = parent.getSimpleName() + "$$AutoHookMethod";
+            mLogger.info(">>> Start process " + childs.size() + " field in " + parent.getSimpleName() + " ... <<<");
+            mLogger.info(">>> Start packageName " + packageName + " fileName " + fileName + " ... <<<");
+
+            //构建自动依赖注入代码的文件
+            TypeSpec.Builder injectHelper = TypeSpec.classBuilder(fileName)
+                    .addJavadoc(javaDoc)
+//                    .addSuperinterface(ClassName.get(type_ISyringe))
+                    .addModifiers(Modifier.PUBLIC);
+
+            // 生成自动依赖注入的类文件[ClassName]$$AutoHookMethod
+            JavaFile.builder(packageName, injectHelper.build()).build().writeTo(mFiler);
+
+            mLogger.info(">>> " + parent.getSimpleName() + " has been processed, " + fileName + " has been generated. <<<");
+        }
+
     }
 
     /**
@@ -267,6 +338,7 @@ public class PageConfigProcessor extends AbstractProcessor {
         Set<String> types = new LinkedHashSet<>();
         types.add(HookClass.class.getCanonicalName());
         types.add(HookReflectClass.class.getCanonicalName());
+        types.add(AutoHookMethod.class.getCanonicalName());
         return types;
     }
 

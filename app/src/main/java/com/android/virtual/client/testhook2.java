@@ -1,5 +1,6 @@
 package com.android.virtual.client;
 
+import com.android.virtual.client.hook.annotation.AutoHookMethod;
 import com.android.virtual.client.hook.annotation.HookClass;
 
 @HookClass(testhook.class)

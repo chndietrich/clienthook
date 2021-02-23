@@ -2,3 +2,5 @@ include ':app'
 rootProject.name = "ClientHook"
 include ':hook-annotation'
 include ':hook-compiler'
+include ':hook-plugin'
+include ':hook-runtime'

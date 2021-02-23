@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+//    id 'com.android.virtual.hook.xaop'
 }
 
 android {
@@ -44,4 +45,5 @@ dependencies {
 
     annotationProcessor project(':hook-compiler')
     implementation project(':hook-annotation')
+    implementation project(':hook-runtime')
 }
