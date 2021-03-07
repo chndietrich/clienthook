@@ -174,7 +174,7 @@ public class PluginmModuleProcessor extends AbstractProcessor {
                 mLogger.info(">>> Found PluginmModule: " + tm.toString() + " <<<");
 
                 PluginmModule pluginmModule = element.getAnnotation(PluginmModule.class);
-                String packageName = pluginmModule.packageName();
+                String packageName = pluginmModule.value();
                 String processName = StringUtils.isEmpty(pluginmModule.processName()) ? packageName : pluginmModule.processName();
                 if(rootMap.containsKey(packageName)){
                     if(!rootMap.get(packageName).containsKey(processName))

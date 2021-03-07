@@ -5,7 +5,7 @@ import com.android.virtual.client.hook.annotation.PluginmModule;
 import com.android.virtual.client.hook.annotation.ThisObject;
 import com.android.virtual.client.hook.model.AutoThisObject;
 
-@PluginmModule(packageName = "xxx", processName = "zzz")
+@PluginmModule(value = "xxx", processName = "zzz")
 public class testhook3 {
 
     @AutoHookMethod(targetClass = testhook2.class, methodName = "z55666")
