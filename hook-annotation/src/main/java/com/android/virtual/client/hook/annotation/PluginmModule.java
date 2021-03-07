@@ -7,8 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Documented
-@Target({ElementType.METHOD,ElementType.FIELD})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HookMethodBackup {
-    String value() default "<init>";
+public @interface PluginmModule {
+    String packageName();
+    String processName() default "";
 }

@@ -7,8 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Documented
-@Target({ElementType.METHOD,ElementType.FIELD})
+@Target({ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HookMethodBackup {
-    String value() default "<init>";
+public @interface AutoVersionApi {
+    int value();
+
+    // 最大值
+    int maxValue() default -1;
 }

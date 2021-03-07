@@ -1,7 +1,8 @@
 package com.android.virtual.client;
 
 import com.android.virtual.client.hook.annotation.HookReflectClass;
+import com.android.virtual.client.hook.annotation.PluginmModule;
 
-@HookReflectClass("com.android.virtual.client.testhook2")
+@PluginmModule(packageName = "5555555")
 public class testhook {
 }

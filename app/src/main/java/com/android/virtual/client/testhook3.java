@@ -1,11 +1,21 @@
 package com.android.virtual.client;
 
 import com.android.virtual.client.hook.annotation.AutoHookMethod;
+import com.android.virtual.client.hook.annotation.PluginmModule;
+import com.android.virtual.client.hook.annotation.ThisObject;
+import com.android.virtual.client.hook.model.AutoThisObject;
 
+@PluginmModule(packageName = "xxx", processName = "zzz")
 public class testhook3 {
 
-    @AutoHookMethod
-    public String withinAnnotatedClass() {
+    @AutoHookMethod(targetClass = testhook2.class, methodName = "z55666")
+    public static String withinAnnotatedClass(AutoThisObject thiz, String X, int xz) {
+
+        return "123";
+    }
+
+    @AutoHookMethod(targetClass = testhook2.class, methodName = "z556664")
+    public String withinAnnotatedClass4(AutoThisObject thiz, String X, int xz) {
 
         return "123";
     }
