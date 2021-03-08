@@ -25,6 +25,8 @@ public class Consts {
 
     public static final String PAGE_CONFIG_CLASS_NAME_SUFFIX = "HookConfig";
 
+    public static final String PAGE_CONFIG_CLASS_NAME_SUFFIX_AUTO = "AutoHookConfig";
+
     public static final String METHOD_INJECT = "inject";
 
     public static final String METHOD_GET_HOOK_CLASS = "getHookClass";
@@ -38,6 +40,8 @@ public class Consts {
     public static final String METHOD = PAGE_CONFIG_PACKAGE_NAME + ".hook.annotation.HookMethod";
 
     public static final String CLASS = PAGE_CONFIG_PACKAGE_NAME + ".hook.annotation.HookClass";
+
+    public static final String REFLECTCLASS = PAGE_CONFIG_PACKAGE_NAME + ".hook.annotation.HookReflectClass";
 
     public static final String AUTOTHISOBJECT = PAGE_CONFIG_PACKAGE_NAME + ".hook.model.AutoThisObject";
 

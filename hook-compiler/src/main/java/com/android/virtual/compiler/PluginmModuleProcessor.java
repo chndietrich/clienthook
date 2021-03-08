@@ -195,10 +195,11 @@ public class PluginmModuleProcessor extends AbstractProcessor {
             MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PRIVATE);
 
-            constructorBuilder.addStatement("mAllPluginmModuleHooks = new $T<>()", ClassName.get(HashMap.class));
+//            constructorBuilder.addStatement("mAllPluginmModuleHooks = new $T<>()", ClassName.get(HashMap.class));
             Collection<FieldSpec> FieldSpecs = new ArrayList<>();
             FieldSpecs.add(FieldSpec.builder(inputListTypeOfPage, "mAllPluginmModuleHooks")
-                    .addModifiers(Modifier.PRIVATE)
+                    .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
+                    .initializer("new HashMap<String, Map<String, List<Class>>>()")
                     .build());
 
             Collection<MethodSpec> MethodSpecs = new ArrayList<>();
