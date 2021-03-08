@@ -183,10 +183,14 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                 continue;
 
             mLogger.info(">>> AutoHookElement " + ClassTypeElement + "." + element + " <<<");
+            if (!element.getModifiers().contains(PUBLIC))
+                throw new IllegalAccessException("The AutoHook Method can only 'public'!!! please check Method ["
+                        + element.getSimpleName() + "] in class [" + ClassTypeElement.getQualifiedName() + "]");
 
             ExecutableElement executableElement = (ExecutableElement) element;
             if(executableElement.getParameters().isEmpty() || !executableElement.getParameters().get(0).asType().toString().equals(Consts.AUTOTHISOBJECT))
-                throw new IllegalAccessException("check parame 1 [" + executableElement.getParameters().get(0).asType() + "] in class [" + Consts.AUTOTHISOBJECT + "]");
+                throw new IllegalAccessException("The AutoHook Parameter 1 can only 'AutoThisObject'!!! please check Method ["
+                        + element.getSimpleName() + "] in class [" + ClassTypeElement.getQualifiedName() + "]");
 
             if (parentAndChild.containsKey(ClassTypeElement)) { // Has categries
 
