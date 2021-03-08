@@ -10,5 +10,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HookMode {
+    int AUTO = 0;
+    int INLINE = 1;
+    int REPLACE = 2;
 
+    int value() default AUTO;
 }
