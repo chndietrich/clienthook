@@ -7,6 +7,7 @@ public class AutoHookBridge {
     private static final AutoHookBridge mBridge = new AutoHookBridge();
 
     private Callback mCallback = new Callback(){};
+
     private AutoHookBridge(){}
 
     public static AutoHookBridge get() {
@@ -14,7 +15,7 @@ public class AutoHookBridge {
     }
 
     public interface Callback {
-        default Object callOriginByBackup(Method backup, Object thiz, Object... args){ return null;}
+        default Object callOriginByBackup(Method backup, Object thiz, Object... args) throws Throwable { return null;}
     }
 
     public void setCallback(Callback callback){
