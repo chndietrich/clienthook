@@ -277,7 +277,8 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                     MethodSpec.Builder MethodBuilder = MethodSpec.methodBuilder(autoHookMethod.methodName() + "_method")
                             .addModifiers(PUBLIC, Modifier.STATIC)
                             .addAnnotation(AnnotationSpec.builder(ClassName.get(hook_Method)).addMember("value", "$S", autoHookMethod.methodName()).build())
-                            .returns(TypeName.get(executableElement.getReturnType()));
+                            .returns(TypeName.get(executableElement.getReturnType()))
+                            .addException(Throwable.class);
 
                     Set<Modifier> modifiers = element.getModifiers();
                     if(!modifiers.contains(Modifier.STATIC))
