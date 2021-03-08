@@ -185,12 +185,22 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
             mLogger.info(">>> AutoHookElement " + ClassTypeElement + "." + element + " <<<");
             if (!element.getModifiers().contains(PUBLIC))
                 throw new IllegalAccessException("The AutoHook Method can only 'public'!!! please check Method ["
-                        + element.getSimpleName() + "] in class [" + ClassTypeElement.getQualifiedName() + "]");
+                        + element.getSimpleName() + "] in class [" + ClassTypeElement.getQualifiedName() + "](" + ClassTypeElement.getSimpleName() + ".java:0)");
 
             ExecutableElement executableElement = (ExecutableElement) element;
             if(executableElement.getParameters().isEmpty() || !executableElement.getParameters().get(0).asType().toString().equals(Consts.AUTOTHISOBJECT))
                 throw new IllegalAccessException("The AutoHook Parameter 1 can only 'AutoThisObject'!!! please check Method ["
-                        + element.getSimpleName() + "] in class [" + ClassTypeElement.getQualifiedName() + "]");
+                        + element.getSimpleName() + "] in class [" + ClassTypeElement.getQualifiedName() + "](" + ClassTypeElement.getSimpleName() + ".java:0)");
+
+            boolean isExistThrown = false;
+            for (TypeMirror typeMirror : executableElement.getThrownTypes()){
+
+                if(typeMirror.toString().contains("java.lang.Throwable"))
+                    isExistThrown = true;
+            }
+            if(!isExistThrown)
+                throw new IllegalAccessException("The AutoHook Method can only 'throws Throwable'!!! please check Method ["
+                        + element.getSimpleName() + "] in class [" + ClassTypeElement.getQualifiedName() + "](" + ClassTypeElement.getSimpleName() + ".java:0)");
 
             if (parentAndChild.containsKey(ClassTypeElement)) { // Has categries
 
