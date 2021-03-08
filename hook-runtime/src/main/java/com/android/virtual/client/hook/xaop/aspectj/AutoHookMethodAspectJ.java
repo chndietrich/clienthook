@@ -14,7 +14,7 @@ import org.aspectj.lang.annotation.Pointcut;
  *     time   : 2021年2月22日 18:14:06
  * </pre>
  */
-@Aspect
+//@Aspect
 public class AutoHookMethodAspectJ {
 
     @Pointcut("within(@com.android.virtual.client.hook.annotation.AutoHookMethod *)")
