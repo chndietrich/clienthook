@@ -633,14 +633,21 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                 .addJavadoc(javaDoc)
                 .addModifiers(PUBLIC)
                 .addField(FieldSpec.builder(AutoHookConfigClassName, "sInstance")
-                        .addModifiers(Modifier.STATIC, Modifier.PRIVATE, Modifier.FINAL)
-                        .initializer("new $T()", AutoHookConfigClassName)
+                        .addModifiers(Modifier.STATIC, Modifier.PRIVATE)
+//                        .initializer("new $T()", AutoHookConfigClassName)
                         .build())
                 .addMethod(constructorBuilder.build())
                 .addMethod(MethodSpec.methodBuilder("getInstance")
                         .addModifiers(PUBLIC)
                         .addModifiers(Modifier.STATIC)
                         .returns(AutoHookConfigClassName)
+                        .addCode("if (sInstance == null) {\n" +
+                                "    synchronized ($T.class) {\n" +
+                                "        if (sInstance == null) {\n" +
+                                "            sInstance = new $T();\n" +
+                                "        }\n" +
+                                "    }\n" +
+                                "}\n", AutoHookConfigClassName, AutoHookConfigClassName)
                         .addStatement("return sInstance")
                         .build())
                 .addMethod(MethodSpec.methodBuilder("getAllHooks")
