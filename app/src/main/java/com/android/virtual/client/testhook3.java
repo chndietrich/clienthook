@@ -9,13 +9,13 @@ import com.android.virtual.client.hook.model.AutoThisObject;
 public class testhook3 {
 
     @AutoHookMethod(targetClass = testhook2.class, methodName = "z55666")
-    public static String withinAnnotatedClass(AutoThisObject thiz, String X, int xz) {
+    public static String withinAnnotatedClass(AutoThisObject thiz, String X1, int xz2) {
 
         return "123";
     }
 
     @AutoHookMethod(targetClass = testhook2.class, methodName = "z556664")
-    public String withinAnnotatedClass4(AutoThisObject thiz, String X, int xz) {
+    public String withinAnnotatedClass4(AutoThisObject thiz, String X1, int xz2) {
 
         return "123";
     }

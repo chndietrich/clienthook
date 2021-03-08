@@ -27,6 +27,8 @@ public class Consts {
 
     public static final String METHOD_INJECT = "inject";
 
+    public static final String METHOD_GET_HOOK_CLASS = "getHookClass";
+
     public static final String ISYRINGE = PAGE_CONFIG_PACKAGE_NAME + ".facade.template.ISyringe";
 
     public static final String METHODBACKUP = PAGE_CONFIG_PACKAGE_NAME + ".hook.annotation.HookMethodBackup";

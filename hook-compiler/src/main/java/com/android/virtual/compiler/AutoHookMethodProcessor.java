@@ -11,6 +11,7 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
@@ -181,10 +182,11 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
             if(modifiers == null || modifiers.isEmpty())
                 continue;
 
-            if (!modifiers.contains(PUBLIC) || modifiers.contains(Modifier.FINAL)) {
-                throw new IllegalAccessException("The inject fields CAN NOT BE 'public|static'!!!.final please check field ["
-                        + element.getSimpleName() + "] in class [" + ClassTypeElement.getQualifiedName() + "]");
-            }
+            mLogger.info(">>> AutoHookElement " + ClassTypeElement + "." + element + " <<<");
+
+            ExecutableElement executableElement = (ExecutableElement) element;
+            if(executableElement.getParameters().isEmpty() || !executableElement.getParameters().get(0).asType().toString().equals(Consts.AUTOTHISOBJECT))
+                throw new IllegalAccessException("check parame 1 [" + executableElement.getParameters().get(0).asType() + "] in class [" + Consts.AUTOTHISOBJECT + "]");
 
             if (parentAndChild.containsKey(ClassTypeElement)) { // Has categries
 
@@ -221,8 +223,8 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
             String qualifiedName = parent.getQualifiedName().toString();
             String packageName = qualifiedName.substring(0, qualifiedName.lastIndexOf("."));
             String fileName = parent.getSimpleName() + Consts.SEPARATOR + "AutoHookMethod";
-            mLogger.info(">>> Start process " + childElement.size() + " field in " + parent.getSimpleName() + " ... <<<");
-            mLogger.info(">>> Start packageName " + packageName + " fileName " + fileName + " ... <<<");
+            mLogger.info(">>> handle " + childElement.size() + " field in " + parent + " <<<");
+            mLogger.info(">>> create " + packageName + " fileName " + fileName + " <<<");
 
             //构建自动依赖注入代码的文件
             TypeSpec.Builder injectHelper = TypeSpec.classBuilder(fileName)
@@ -230,7 +232,9 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                     .addSuperinterface(ClassName.get(type_ISyringe))
                     .addModifiers(PUBLIC);
 
-            injectHelper.addField(FieldSpec.builder(ClassName.get(parent), "origObject", Modifier.PUBLIC, Modifier.STATIC).build());
+            injectHelper.addField(FieldSpec.builder(ClassName.get(parent), "origObject", Modifier.PUBLIC, Modifier.STATIC)
+                    .initializer("null")
+                    .build());
 
             MethodSpec.Builder injectMethodBuilder = MethodSpec.methodBuilder(Consts.METHOD_INJECT)
                     .addAnnotation(Override.class)
@@ -238,11 +242,16 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                     .addStatement("this.origObject = ($T)target", ClassName.get(parent))
                     .addModifiers(PUBLIC);
 
+            //构造函数
+            MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
+                    .addModifiers(PUBLIC);
+
             Collection<TypeSpec> TypeSpecs = new ArrayList<>();
             for (Map.Entry<TypeElement, List<Element>> childEntry : childElement.entrySet()){
 
                 TypeElement child_parent = childEntry.getKey();  //封装字段的最里层类
                 List<Element> child_Element = childEntry.getValue();
+
                 TypeSpec.Builder childInjectHelper = TypeSpec.classBuilder( child_parent.toString().replace(".","_"))
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .addAnnotation(AnnotationSpec.builder(ClassName.get(hook_Class))
@@ -250,13 +259,14 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                                 .addMember("group", "$S", "autoHook")
                                 .build());
 
+
+
                 Collection<FieldSpec> FieldSpecs = new ArrayList<>();
                 Collection<MethodSpec> MethodSpecs = new ArrayList<>();
                 TypeMirror tm;
                 for (Element element : child_Element){
 
                     tm = element.asType();
-                    mLogger.info(">>> Found AutoHookMethod: " + tm.toString() + " <<<");
                     AutoHookMethod autoHookMethod = element.getAnnotation(AutoHookMethod.class);
                     ExecutableElement executableElement = (ExecutableElement) element;
                     AnnotationSpec.Builder Builder = AnnotationSpec.builder(ClassName.get(hook_MethodParams));
@@ -267,7 +277,7 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
 
                     Set<Modifier> modifiers = element.getModifiers();
                     if(!modifiers.contains(Modifier.STATIC))
-                        MethodBuilder.addParameter(ParameterSpec.builder(Object.class, "thiz").addAnnotation(ClassName.get(hook_ThisObject)).build());
+                        MethodBuilder.addParameter(ParameterSpec.builder(Object.class, "thiz").addAnnotation(ClassName.get(hook_ThisObject)).addModifiers(Modifier.FINAL).build());
 
                     int index = 0;
                     StringBuilder Data = new StringBuilder();
@@ -276,7 +286,7 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                         if(index > 0){
 
                             Builder.addMember("value", "$T.class", variableElement.asType());
-                            MethodBuilder.addParameter(ParameterSpec.builder(TypeName.get(variableElement.asType()), variableElement.getSimpleName().toString()).build());
+                            MethodBuilder.addParameter(ParameterSpec.builder(TypeName.get(variableElement.asType()), variableElement.getSimpleName().toString()).addModifiers(Modifier.FINAL).build());
                             Data.append(", ").append(variableElement.getSimpleName().toString());
                         }
                         index ++;
@@ -294,7 +304,7 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                             "      @Override\n"+
                             "      public Object call(Object... args) throws Throwable {\n"+
                             "          if(" + autoHookMethod.methodName() + "_method_backup != null)\n"+
-                            "              return $T.callOriginByBackup(" + autoHookMethod.methodName() + "_method_backup, " + (modifiers.contains(Modifier.STATIC) ? "null" : "thiz") + ", args);\n"+
+                            "              return $T.get().callOriginByBackup(" + autoHookMethod.methodName() + "_method_backup, " + (modifiers.contains(Modifier.STATIC) ? "null" : "thiz") + ", args);\n"+
                             "          throw new NullPointerException();\n"+
                             "      }\n"+
                             "  }";
@@ -317,8 +327,33 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                 }
                 childInjectHelper.addFields(FieldSpecs);
                 childInjectHelper.addMethods(MethodSpecs);
-                TypeSpecs.add(childInjectHelper.build());
+
+                TypeSpec typeSpec;
+                TypeSpecs.add(typeSpec = childInjectHelper.build());
+                mLogger.info(">>> " + typeSpec.name + " <<<");
+                constructorBuilder.addStatement("this.mHookClass.add("+typeSpec.name+".class)");
             }
+
+            injectHelper.addField(FieldSpec.builder(ParameterizedTypeName.get(
+                    ClassName.get(List.class),
+                    ClassName.get(Class.class)
+            ),"mHookClass")
+                    .addModifiers(Modifier.PRIVATE)
+                    .addModifiers(Modifier.STATIC)
+                    .initializer("new $T<>()", ClassName.get(ArrayList.class))
+                    .build());
+
+            injectHelper.addMethod(MethodSpec.methodBuilder(Consts.METHOD_GET_HOOK_CLASS)
+                    .addAnnotation(Override.class)
+                    .returns(ParameterizedTypeName.get(
+                            ClassName.get(List.class),
+                            ClassName.get(Class.class)
+                    ))
+                    .addStatement("return this.mHookClass")
+                    .addModifiers(PUBLIC)
+                    .build());
+
+            injectHelper.addMethod(constructorBuilder.build());
 
             injectHelper.addTypes(TypeSpecs);
 

@@ -1,5 +1,7 @@
 package com.android.virtual.client.facade.template;
 
+import java.util.List;
+
 /**
  * ISyringe
  *
@@ -13,4 +15,6 @@ public interface ISyringe<T> {
      * @param target 依赖注入的目标
      */
     void inject(T target);
+
+    List<Class<?>> getHookClass();
 }
