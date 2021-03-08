@@ -292,7 +292,7 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
 
                     Set<Modifier> modifiers = element.getModifiers();
                     if(!modifiers.contains(Modifier.STATIC))
-                        MethodBuilder.addParameter(ParameterSpec.builder(Object.class, "thiz").addAnnotation(ClassName.get(hook_ThisObject)).addModifiers(Modifier.FINAL).build());
+                        MethodBuilder.addParameter(ParameterSpec.builder(ClassName.get(child_parent), "thiz").addAnnotation(ClassName.get(hook_ThisObject)).addModifiers(Modifier.FINAL).build());
 
                     int index = 0;
                     StringBuilder Data = new StringBuilder();
@@ -308,28 +308,26 @@ public class AutoHookMethodProcessor extends AbstractProcessor {
                     }
 
                     String AutoThisObject = "new $T(){\n" +
-                            "      @Override\n"+
-                            "      public Method getBackup() {\n"+
-                            "          return "+autoHookMethod.methodName() + "_method_backup;\n"+
-                            "      }\n"+
-                            "      @Override\n"+
-                            "      public Object getThisObject() {\n"+
-                            "          return "+(modifiers.contains(Modifier.STATIC) ? "null" : "thiz")+";\n"+
-                            "      }\n"+
-                            "      @Override\n"+
-                            "      public Object call(Object... args) throws Throwable {\n"+
-                            "          if(" + autoHookMethod.methodName() + "_method_backup != null)\n"+
-                            "              return $T.get().callOriginByBackup(" + autoHookMethod.methodName() + "_method_backup, " + (modifiers.contains(Modifier.STATIC) ? "null" : "thiz") + ", args);\n"+
-                            "          throw new NullPointerException();\n"+
-                            "      }\n"+
-                            "  }";
+                            "    @Override\n"+
+                            "    public Method getBackup() {\n"+
+                            "        return "+autoHookMethod.methodName() + "_method_backup;\n"+
+                            "    }\n"+
+                            "    @Override\n"+
+                            "    public Object getThisObject() {\n"+
+                            "        return "+(modifiers.contains(Modifier.STATIC) ? "null" : "thiz")+";\n"+
+                            "    }\n"+
+                            "    @Override\n"+
+                            "    public Object call(Object... args) throws Throwable {\n"+
+                            "        if(" + autoHookMethod.methodName() + "_method_backup == null)\n"+
+                            "            throw new NullPointerException(\"[" + autoHookMethod.methodName() + "_method_backup] Cannot be empty\");\n"+
+                            "        return $T.get().callOriginByBackup(" + autoHookMethod.methodName() + "_method_backup, " + (modifiers.contains(Modifier.STATIC) ? "null" : "thiz") + ", args);\n"+
+                            "    }\n"+
+                            "}";
 
                     if(modifiers.contains(Modifier.STATIC)){
                         MethodBuilder.addStatement((executableElement.getReturnType().getKind() == TypeKind.VOID ? "" : "return ") + "$T." + executableElement.getSimpleName() + "(" + AutoThisObject+Data.toString() + ")", ClassName.get(parent), ClassName.get(hook_AutoThisObject), ClassName.get(hook_AutoHookBridge));
                     }else{
-                        MethodBuilder.addStatement("  if(origObject != null)\n  " + (executableElement.getReturnType().getKind() == TypeKind.VOID ? "" : "return ") + "origObject." + executableElement.getSimpleName() + "(" + AutoThisObject + Data.toString() + ")", ClassName.get(hook_AutoThisObject), ClassName.get(hook_AutoHookBridge));
-                        if(executableElement.getReturnType().getKind() != TypeKind.VOID)
-                            MethodBuilder.addStatement("throw new NullPointerException()");
+                        MethodBuilder.addStatement("  if(origObject == null)\n  throw new NullPointerException(\"[origObject]  Cannot be empty\");\n" + (executableElement.getReturnType().getKind() == TypeKind.VOID ? "" : "return ") + "origObject." + executableElement.getSimpleName() + "(" + AutoThisObject + Data.toString() + ")", ClassName.get(hook_AutoThisObject), ClassName.get(hook_AutoHookBridge));
                     }
 
                     //添加依赖注入的方法
