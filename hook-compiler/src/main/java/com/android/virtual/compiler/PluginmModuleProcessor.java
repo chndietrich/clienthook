@@ -180,6 +180,7 @@ public class PluginmModuleProcessor extends AbstractProcessor {
                     if(!rootMap.get(packageName).containsKey(processName))
                         rootMap.get(packageName).put(processName, new ArrayList<>());
 
+                    rootMap.get(packageName).get(processName).add(element);
                 }else{
                     rootMap.put(packageName, new HashMap<>());
                     if(!rootMap.get(packageName).containsKey(processName))
